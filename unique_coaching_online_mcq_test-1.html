@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unique Coaching Centre - Online MCQ Test</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f2f5f9;color:#17202a}
+.header{background:#123b6d;color:white;padding:18px;text-align:center}
+.header h1{margin:0;font-size:22px}.header p{margin:6px 0 0}
+.container{max-width:700px;margin:20px auto;padding:0 12px}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 3px 12px #0001}
+input{width:100%;padding:13px;margin:8px 0 14px;border:1px solid #ccd3dc;border-radius:8px;font-size:16px}
+button{border:0;border-radius:8px;padding:12px 18px;font-size:16px;cursor:pointer}
+.primary{background:#123b6d;color:white}.secondary{background:#e8edf3;color:#17202a}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.timer{font-weight:bold;background:#fff0d5;color:#8a5300;padding:8px 12px;border-radius:8px}
+.progress{height:8px;background:#e6eaf0;border-radius:10px;overflow:hidden;margin-bottom:18px}
+.progress div{height:100%;background:#123b6d;width:10%}
+.option{display:block;padding:13px;margin:10px 0;border:1px solid #d5dbe3;border-radius:9px;cursor:pointer}
+.option:hover{background:#f5f8fb}
+.option input{width:auto;margin:0 8px 0 0}
+.nav{display:flex;justify-content:space-between;margin-top:20px}
+.result{text-align:center}.score{font-size:34px;font-weight:bold;color:#123b6d}
+.hidden{display:none}
+.review{margin-top:20px;text-align:left}.review-item{padding:12px;border-radius:8px;margin:8px 0;background:#f6f7f9}
+.correct{border-left:5px solid #26934a}.wrong{border-left:5px solid #d43d3d}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>UNIQUE COACHING CENTRE, MAJHUA</h1>
+  <p>Online MCQ Test</p>
+</div>
+
+<div class="container">
+  <div id="start" class="card">
+    <h2>General Knowledge Test</h2>
+    <p>कुल प्रश्न: <b>10</b> &nbsp; | &nbsp; समय: <b>10 मिनट</b></p>
+    <label>Student Name</label>
+    <input id="studentName" placeholder="अपना नाम लिखें">
+    <label>Roll No.</label>
+    <input id="rollNo" placeholder="Roll Number">
+    <button class="primary" onclick="startTest()">Start Test</button>
+  </div>
+
+  <div id="test" class="card hidden">
+    <div class="top">
+      <b id="qNumber">Question 1/10</b>
+      <span class="timer">Time: <span id="timer">10:00</span></span>
+    </div>
+    <div class="progress"><div id="bar"></div></div>
+    <h3 id="question"></h3>
+    <div id="options"></div>
+    <div class="nav">
+      <button class="secondary" onclick="prevQuestion()">Previous</button>
+      <button id="nextBtn" class="primary" onclick="nextQuestion()">Next</button>
+    </div>
+  </div>
+
+  <div id="result" class="card result hidden">
+    <h2>Test Result</h2>
+    <p id="studentResult"></p>
+    <div class="score" id="score"></div>
+    <p id="details"></p>
+    <button class="primary" onclick="location.reload()">Take Test Again</button>
+    <div id="review" class="review"></div>
+  </div>
+</div>
+
+<script>
+const questions = [
+ {q:"भारत का सबसे लंबा राष्ट्रीय राजमार्ग (National Highway) कौन-सा है?",o:["NH 7","NH 44","NH 1","NH 10"],a:1},
+ {q:"भारतीय संविधान के किस अनुच्छेद में 'ग्राम पंचायतों के गठन' का निर्देश दिया गया है?",o:["अनुच्छेद 21","अनुच्छेद 32","अनुच्छेद 40","अनुच्छेद 50"],a:2},
+ {q:"'भारत का नेपोलियन' किसे कहा जाता है?",o:["चंद्रगुप्त मौर्य","समुद्रगुप्त","अशोक","हर्षवर्धन"],a:1},
+ {q:"भारत में 'हरित क्रांति' (Green Revolution) का जनक किसे माना जाता है?",o:["डॉ. एम. एस. स्वामीनाथन","डॉ. वर्गीज कुरियन","डॉ. ए. पी. जे. अब्दुल कलाम","डॉ. होमी जहांगीर भाभा"],a:0},
+ {q:"भारत की सबसे प्राचीन पर्वत श्रृंखला कौन-सी है?",o:["हिमालय","अरावली","सतपुड़ा","पश्चिमी घाट"],a:1},
+ {q:"1875 में 'आर्य समाज' की स्थापना किसने की थी?",o:["राजा राममोहन राय","स्वामी विवेकानंद","स्वामी दयानंद सरस्वती","ईश्वर चंद्र विद्यासागर"],a:2},
+ {q:"भारतीय राष्ट्रीय कांग्रेस (INC) की स्थापना किस वर्ष हुई थी?",o:["1885","1905","1919","1942"],a:0},
+ {q:"क्षेत्रफल की दृष्टि से भारत का सबसे बड़ा राज्य कौन-सा है?",o:["उत्तर प्रदेश","मध्य प्रदेश","राजस्थान","महाराष्ट्र"],a:2},
+ {q:"काजीरंगा राष्ट्रीय उद्यान (Kaziranga National Park) किस राज्य में स्थित है?",o:["असम","उत्तराखंड","गुजरात","मध्य प्रदेश"],a:0},
+ {q:"भारत के राष्ट्रपति को पद एवं गोपनीयता की शपथ कौन दिलाता है?",o:["प्रधानमंत्री","उपराष्ट्रपति","भारत के मुख्य न्यायाधीश (CJI)","लोकसभा अध्यक्ष"],a:2}
+];
+
+let current=0, answers=Array(questions.length).fill(null), seconds=600, timerInterval;
+
+function startTest(){
+  const name=document.getElementById("studentName").value.trim();
+  if(!name){alert("कृपया अपना नाम लिखें।");return;}
+  document.getElementById("start").classList.add("hidden");
+  document.getElementById("test").classList.remove("hidden");
+  showQuestion();
+  timerInterval=setInterval(tick,1000);
+}
+function tick(){
+  seconds--;
+  let m=Math.floor(seconds/60), s=seconds%60;
+  document.getElementById("timer").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  if(seconds<=0){clearInterval(timerInterval);submitTest();}
+}
+function showQuestion(){
+  const x=questions[current];
+  document.getElementById("qNumber").textContent=`Question ${current+1}/${questions.length}`;
+  document.getElementById("question").textContent=x.q;
+  document.getElementById("bar").style.width=((current+1)/questions.length*100)+"%";
+  document.getElementById("options").innerHTML=x.o.map((v,i)=>
+    `<label class="option"><input type="radio" name="answer" value="${i}" ${answers[current]===i?"checked":""} onchange="answers[current]=${i}"> ${String.fromCharCode(65+i)}. ${v}</label>`
+  ).join("");
+  document.getElementById("nextBtn").textContent=current===questions.length-1?"Submit Test":"Next";
+}
+function nextQuestion(){
+  if(current===questions.length-1){submitTest();return;}
+  current++;showQuestion();
+}
+function prevQuestion(){if(current>0){current--;showQuestion();}}
+function submitTest(){
+  clearInterval(timerInterval);
+  let correct=0;
+  questions.forEach((q,i)=>{if(answers[i]===q.a)correct++;});
+  const wrong=questions.length-correct;
+  const pct=correct/questions.length*100;
+  document.getElementById("test").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+  document.getElementById("studentResult").textContent=
+    "Student: "+document.getElementById("studentName").value+" | Roll No.: "+(document.getElementById("rollNo").value||"-");
+  document.getElementById("score").textContent=`${correct} / ${questions.length}`;
+  document.getElementById("details").textContent=`Correct: ${correct} | Wrong: ${wrong} | Percentage: ${pct}%`;
+  document.getElementById("review").innerHTML="<h3>Answer Review</h3>"+questions.map((q,i)=>{
+    const ok=answers[i]===q.a;
+    return `<div class="review-item ${ok?"correct":"wrong"}"><b>Q${i+1}.</b> ${q.q}<br>Your answer: ${answers[i]===null?"Not answered":q.o[answers[i]]}<br>Correct answer: ${q.o[q.a]}</div>`;
+  }).join("");
+}
+</script>
+</body>
+</html>
